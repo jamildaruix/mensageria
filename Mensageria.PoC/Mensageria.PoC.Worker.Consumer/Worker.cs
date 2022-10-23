@@ -61,6 +61,7 @@ namespace Mensageria.PoC.Worker.Consumer
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
                 Console.WriteLine(" [x] Received {0}", message);
+                channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
             };
 
             channel.BasicConsume(queue: "aerobico-queue",
@@ -68,7 +69,7 @@ namespace Mensageria.PoC.Worker.Consumer
                                  consumer: consumerAerobico);
 
             channel.BasicConsume(queue: "musculacao-queue",
-                                 autoAck: true,
+                                 autoAck: false,
                                  consumer: consumerMusculacao);
 
             while (!stoppingToken.IsCancellationRequested)
