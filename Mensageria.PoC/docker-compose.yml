@@ -1,0 +1,27 @@
+version: '3.4'
+
+services:
+  mensageria.poc.api.producer:
+    image: ${DOCKER_REGISTRY-}mensageriapocapipublish
+    build:
+      context: .
+      dockerfile: Mensageria.PoC.Api.Producer/Dockerfile
+
+  mensageria.poc.worker.consumer:
+    image: ${DOCKER_REGISTRY-}mensageriapocworkerconsumer
+    build:
+      context: .
+      dockerfile: Mensageria.PoC.Worker.Consumer/Dockerfile
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports: 
+        #- 25672:25672 # (erlang) communication between the nodes and CLI tool
+        - 15672:15672 # communication with the web management API     
+        - 5672:5672
+    volumes:
+        - /docker_conf/rabbitmq/data/:/var/lib/rabbitmq/
+    environment:
+        - RABBITMQ_DEFAULT_USER = guest
+        - RABBITMQ_DEFAULT_PASS = guest
+    restart: always
