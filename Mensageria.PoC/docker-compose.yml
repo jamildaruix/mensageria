@@ -1,27 +1,51 @@
 version: '3.4'
 
+networks:
+  mensageria-network:
+    driver:
+      bridge
+
 services:
   mensageria.poc.api.producer:
     image: ${DOCKER_REGISTRY-}mensageriapocapipublish
     build:
       context: .
       dockerfile: Mensageria.PoC.Api.Producer/Dockerfile
+    networks:
+      - mensageria-network
+    links:
+      - rabbitmq
 
   mensageria.poc.worker.consumer:
     image: ${DOCKER_REGISTRY-}mensageriapocworkerconsumer
     build:
       context: .
       dockerfile: Mensageria.PoC.Worker.Consumer/Dockerfile
+    networks:
+      - mensageria-network
+    links:
+      - rabbitmq
 
   rabbitmq:
     image: rabbitmq:3-management
     ports: 
-        #- 25672:25672 # (erlang) communication between the nodes and CLI tool
-        - 15672:15672 # communication with the web management API     
-        - 5672:5672
+        - "4369:4369"
+        - "5671:5671"
+        - "5672:5672"
+        - "25672:25672"
+        - "15671:15671"
+        - "15672:15672"
     volumes:
         - /docker_conf/rabbitmq/data/:/var/lib/rabbitmq/
     environment:
         - RABBITMQ_DEFAULT_USER = guest
         - RABBITMQ_DEFAULT_PASS = guest
+    tty: true
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 5s
+      timeout: 15s
+      retries: 3
     restart: always
+    networks:
+      - mensageria-network

@@ -1,3 +1,6 @@
+using Mensageria.PoC.Api.Producer;
+using RabbitMQ.Client;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
